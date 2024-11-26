@@ -12,6 +12,7 @@
     <div id="content-wrap">
       <th:block th:insert="~{fragments/navbar.html :: navbar}"></th:block>
       <br><br>
+      <th:block th:insert="~{fragments/multi-toolAdvert.html :: multi-toolAdvert}"></th:block>
       <div class="container" id="dropContainer">
         <div class="row justify-content-center">
           <div class="col-md-6 bg-card">
@@ -19,7 +20,7 @@
               <span class="material-symbols-rounded tool-header-icon organize">add_to_photos</span>
               <span class="tool-header-text" th:text="#{merge.header}"></span>
             </div>
-            <form action="api/v1/general/merge-pdfs" method="post" enctype="multipart/form-data">
+            <form th:action="@{'api/v1/general/merge-pdfs'}" method="post" enctype="multipart/form-data">
               <div class="mb-3">
                 <label th:text="#{multiPdfDropPrompt}" for="fileInput-input"></label>
                 <div
@@ -38,6 +39,9 @@
                 <button type="button" id="sortByNameBtn" class="btn btn-info" th:text="#{merge.sortByName}"></button>
                 <button type="button" id="sortByDateBtn" class="btn btn-info" th:text="#{merge.sortByDate}"></button>
                 <button type="submit" id="submitBtn" class="btn btn-primary" th:text="#{merge.submit}"></button>
+              </div>
+              <div class="mb-3">
+                <button type="button" id="resetFileInputBtn" class="btn btn-danger" th:text="#{reset}">Reset</button>
               </div>
             </form>
             <span id="pageTranslation" th:text="#{page}" style="display:none;"></span>
