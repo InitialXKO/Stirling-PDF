@@ -407,7 +407,7 @@
         {
             "moduleName": "commons-io:commons-io",
             "moduleUrl": "https://commons.apache.org/proper/commons-io/",
-            "moduleVersion": "2.17.0",
+            "moduleVersion": "2.18.0",
             "moduleLicense": "Apache-2.0",
             "moduleLicenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt"
         },
@@ -1383,6 +1383,13 @@
             "moduleName": "org.springframework.security:spring-security-web",
             "moduleUrl": "https://spring.io/projects/spring-security",
             "moduleVersion": "6.4.1",
+            "moduleLicense": "Apache License, Version 2.0",
+            "moduleLicenseUrl": "https://www.apache.org/licenses/LICENSE-2.0"
+        },
+        {
+            "moduleName": "org.springframework.session:spring-session-core",
+            "moduleUrl": "https://spring.io/projects/spring-session",
+            "moduleVersion": "3.4.0",
             "moduleLicense": "Apache License, Version 2.0",
             "moduleLicenseUrl": "https://www.apache.org/licenses/LICENSE-2.0"
         },
