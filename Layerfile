@@ -18,7 +18,7 @@ RUN apt-get update && \
 
 
 # copy files from the repository into this staging server
-# COPY . .
+COPY . .
 
 RUN docker run -d \
   -p 8080:8080 \
