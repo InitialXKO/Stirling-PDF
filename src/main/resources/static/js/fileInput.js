@@ -35,6 +35,8 @@ function setupFileInput(chooser) {
   const pdfPrompt = chooser.getAttribute('data-bs-pdf-prompt');
   const inputContainerId = chooser.getAttribute('data-bs-element-container-id');
   const showUploads = chooser.getAttribute('data-bs-show-uploads') === "true";
+  const name = chooser.getAttribute('data-bs-unique-id')
+  const noFileSelectedPrompt = chooser.getAttribute('data-bs-no-file-selected');
 
   let inputContainer = document.getElementById(inputContainerId);
   const input = document.getElementById(elementId);
@@ -56,6 +58,12 @@ function setupFileInput(chooser) {
   inputContainer.addEventListener('click', (e) => {
     let inputBtn = document.getElementById(elementId);
     inputBtn.click();
+  });
+
+  // Handle form validation if the input is left empty
+  input.addEventListener("invalid", (e) => {
+    e.preventDefault();
+    alert(noFileSelectedPrompt);
   });
 
   const dragenterListener = function () {
@@ -80,6 +88,21 @@ function setupFileInput(chooser) {
     overlay = false;
   }
 
+  const googleDriveFileListener = function (e) {
+    const googleDriveFiles = e.detail;
+
+    const fileInput = document.getElementById(elementId);
+    if (fileInput?.hasAttribute('multiple')) {
+      pushFileListTo(googleDriveFiles, allFiles);
+    } else if (fileInput) {
+      allFiles = [googleDriveFiles[0]];
+    }
+
+    const dataTransfer = new DataTransfer();
+    allFiles.forEach((file) => dataTransfer.items.add(file));
+    fileInput.files = dataTransfer.files;
+    fileInput.dispatchEvent(new CustomEvent('change', { bubbles: true, detail: { source: 'drag-drop' } }));
+  }
 
   const dropListener = function (e) {
     e.preventDefault();
@@ -130,6 +153,7 @@ function setupFileInput(chooser) {
   document.body.addEventListener('dragenter', dragenterListener);
   document.body.addEventListener('dragleave', dragleaveListener);
   document.body.addEventListener('drop', dropListener);
+  document.body.addEventListener(name + 'GoogleDriveDrivePicked', googleDriveFileListener);
 
   $('#' + elementId).on('change', async function (e) {
     let element = e.target;
@@ -146,7 +170,7 @@ function setupFileInput(chooser) {
 	inputContainer.querySelector('#fileInputText').innerHTML = window.fileInput.loading;
 
     async function checkZipFile() {
-      const hasZipFiles = allFiles.some(file => zipTypes.includes(file.type));
+      const hasZipFiles = allFiles.some(file => ((typeof(file.type) != undefined) && zipTypes.includes(file.type)));
 
       // Only change to extractPDF message if we actually have zip files
       if (hasZipFiles) {
@@ -171,6 +195,28 @@ function setupFileInput(chooser) {
     const decryptFile = new DecryptFile();
 
     await checkZipFile();
+
+    const uploadLimit = window.stirlingPDF?.uploadLimit ?? 0;
+    if (uploadLimit > 0) {
+      const oversizedFiles = allFiles.filter(f => f.size > uploadLimit);
+      if (oversizedFiles.length > 0) {
+        const names = oversizedFiles.map(f => `"${f.name}"`).join(', ');
+        if (names.length === 1) {
+          alert(`${names} ${window.stirlingPDF.uploadLimitExceededSingular} ${window.stirlingPDF.uploadLimitReadable}.`);
+        } else {
+          alert(`${names} ${window.stirlingPDF.uploadLimitExceededPlural} ${window.stirlingPDF.uploadLimitReadable}.`);
+        }
+        allFiles = allFiles.filter(f => f.size <= uploadLimit);
+        const dataTransfer = new DataTransfer();
+        allFiles.forEach(f => dataTransfer.items.add(f));
+        input.files = dataTransfer.files;
+
+        if (allFiles.length === 0) {
+          inputContainer.querySelector('#fileInputText').innerHTML = originalText;
+          return;
+        }
+      }
+    }
 
     allFiles = await Promise.all(
       allFiles.map(async (file) => {
